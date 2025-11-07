@@ -1,0 +1,42 @@
+[*.{cs,vb}]
+
+insert_final_newline = false
+csharp_new_line_before_open_brace = none
+
+csharp_new_line_before_else = false
+csharp_new_line_before_catch = false
+csharp_new_line_before_finally = false
+
+csharp_indent_case_contents = true
+csharp_preprocessor_directives_left_aligned = false
+csharp_indent_labels = no_change
+
+# IDE0130: Namespace does not match folder structure
+dotnet_diagnostic.IDE0130.severity = none
+
+# IDE0047: Remove unnecessary parentheses
+dotnet_diagnostic.IDE0047.severity = none
+
+# IDE0003: Remove qualification
+dotnet_diagnostic.IDE0003.severity = none
+
+# IDE0029: Use coalesce expression
+dotnet_diagnostic.IDE0029.severity = none
+
+# CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+dotnet_diagnostic.CS8632.severity = none
+
+# IDE0090: Use 'new(...)'
+dotnet_diagnostic.IDE0090.severity = none
+
+# CS0437: Type conflicts with imported namespace
+dotnet_diagnostic.CS0437.severity = none
+
+# UNT0022: Inefficient position/rotation assignment
+dotnet_diagnostic.UNT0022.severity = none
+
+# Default severity for analyzer diagnostics with category 'Style'
+dotnet_analyzer_diagnostic.category-Style.severity = none
+
+# UNT0028: Use non-allocating physics APIs
+dotnet_diagnostic.UNT0028.severity = none
