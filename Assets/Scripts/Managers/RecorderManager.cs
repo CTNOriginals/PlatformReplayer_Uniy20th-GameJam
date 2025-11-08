@@ -72,12 +72,5 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 			this.Recordings.Add(new CPlayerRecording());
 		}
-
-		private void OnValidate() {
-			D_pos = new Vector2(
-				(int)(D_count / 5),
-				D_count - ((int)(D_count / 5) * 5)
-			);
-		}
 	}
 }
