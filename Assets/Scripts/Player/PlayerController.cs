@@ -25,12 +25,16 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		private Vector2 _velocity;
 		[RuntimeGroup, SerializeField]
 		private Vector2 _moveDir;
+
 		[RuntimeGroup, SerializeField]
 		private bool _isGrounded;
+		
+		[RuntimeGroup, SerializeField]
+		private Transform _wallLeft;
+		[RuntimeGroup, SerializeField]
+		private Transform _wallRight;
 
 		public Vector2 D_step;
-		public float D_face;
-		public float D_collFace;
 
 		PlayerInput playerInput;
 		Rigidbody2D rb;
@@ -41,41 +45,17 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		}
 
 		private void FixedUpdate() {
-
 			this._currentSpeed = this.GetMovementSpeed();
 			this._velocity = this.GetPlayerVelocity(this._velocity, this._currentSpeed);
 
 			Vector2 step = this._velocity * Time.fixedDeltaTime;
-			Vector2 dir = new Vector2(
-				(step.x > 0) ? 1 : (step.x < 0) ? -1 : 0,
-				(step.y > 0) ? 1 : (step.y < 0) ? -1 : 0
-			);
 
-			D_step = step;
-
-			Collider2D groundCollider = Physics2D.OverlapBox((Vector2)this.transform.position + step, this.transform.localScale, 0, LayerMask.GetMask(new string[] { "Ground" }));
-			Collider2D wallCollider = Physics2D.OverlapBox((Vector2)this.transform.position + step, this.transform.localScale, 0, LayerMask.GetMask(new string[] { "Wall" }));
-			
-			if (groundCollider) {
-				this._velocity.y = 0;
-				step.y = 0;
-			}
-			if (wallCollider) {
+			if (step.x < 0 && _wallLeft != null || step.x > 0 && _wallRight != null) {
 				this._velocity.x = 0;
 				step.x = 0;
 			}
 			
 			this.transform.position += (Vector3)step;
-		}
-
-		public bool IsGrounded() {
-			this._isGrounded = Physics2D.OverlapBox(
-				this.transform.position - new Vector3(0, 0.01f, 0),
-				this.transform.localScale - new Vector3(0.05f, 0, 0), // Dont include the sides of the player
-				0,
-				LayerMask.GetMask(new string[] { "Ground" })
-			) != null;
-			return this._isGrounded;
 		}
 		
 		private float GetMovementSpeed() {
@@ -83,7 +63,7 @@ namespace CTNOriginals.PlatformReplayer.Player {
 				return 0;
 			}
 
-			return this._baseSpeed * this._initialAccel.GetValue(playerInput.MovementState.Duration);;
+			return this._baseSpeed * this._initialAccel.GetValue(playerInput.MovementState.Duration);
 		}
 
 		/// <summary>
@@ -106,10 +86,8 @@ namespace CTNOriginals.PlatformReplayer.Player {
 			//* Apply gravity
 			newVelocity.y += this._gravity * Time.fixedDeltaTime;
 
-			if (this.IsGrounded()) {
-				if (velocity.y < 0) {
-					newVelocity.y = 0;
-				}
+			if (_isGrounded) {
+				newVelocity.y = 0;
 
 				if (this.playerInput.Jump.State.IsActive) {
 					/* Calculate the jump force of the player.
@@ -122,9 +100,43 @@ namespace CTNOriginals.PlatformReplayer.Player {
 					newVelocity.y = Mathf.Sqrt(this._jumpForce * -2 * _gravity);
 				}
 			}
-			
+
 
 			return newVelocity;
+		}
+
+		private void OnCollisionEnter2D(Collision2D other) {
+			Vector2 normal = other.GetContact(0).normal;
+			
+			switch (other.transform.tag) {
+				case "Ground": 
+					if (normal == Vector2.up) {
+						this._isGrounded = true;
+					}
+					break;
+				case "Wall":
+					if (normal == Vector2.right) {
+						this._wallLeft = other.transform;
+					} else if (normal == Vector2.left) {
+						this._wallRight = other.transform;
+					}
+				break;
+			}
+		}
+		
+		private void OnCollisionExit2D(Collision2D other) {
+			switch (other.transform.tag) {
+				case "Ground": 
+					this._isGrounded = false;
+					break;
+				case "Wall":
+					if (other.transform == _wallLeft) {
+						_wallLeft = null;
+					} else if (other.transform == _wallRight) {
+						_wallRight = null;
+					}
+					break;
+			}
 		}
 	}
 }
