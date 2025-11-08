@@ -35,6 +35,8 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		private bool _isGrounded;
 		
 		[RuntimeGroup, SerializeField]
+		private Transform _ground;
+		[RuntimeGroup, SerializeField]
 		private Transform _wallLeft;
 		[RuntimeGroup, SerializeField]
 		private Transform _wallRight;
@@ -126,6 +128,7 @@ namespace CTNOriginals.PlatformReplayer.Player {
 				case "Ground": 
 					if (normal == Vector2.up) {
 						this._isGrounded = true;
+						this._ground = other.transform;
 					}
 					break;
 				case "Wall":
@@ -140,8 +143,11 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		
 		private void OnCollisionExit2D(Collision2D other) {
 			switch (other.transform.tag) {
-				case "Ground": 
-					this._isGrounded = false;
+				case "Ground":
+					if (other.transform == this._ground) {
+						this._isGrounded = false;
+						this._ground = null;
+					}
 					break;
 				case "Wall":
 					if (other.transform == _wallLeft) {
