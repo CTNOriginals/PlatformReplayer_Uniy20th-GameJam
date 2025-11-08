@@ -23,9 +23,6 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 		public List<Replayer> Replayers;
 
-		public Vector2 D_pos;
-		public int D_count;
-
 		[RuntimeGroup]
 		public EState State;
 
@@ -66,8 +63,8 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 			Vector2 startPos = ReferenceManager.Instance.PlayerStartPosition;
 			this.player.transform.position = new Vector2(
-				startPos.x + (int)(this.Recordings.Count / 5),
-				startPos.y + ((this.player.transform.localScale.y * 2) * this.Recordings.Count) - ((int)(this.Recordings.Count / 5) * 5)
+				startPos.x + (this.player.transform.localScale.x * 2) * (int)(this.Recordings.Count / 10),
+				startPos.y + (this.player.transform.localScale.y * 2) * (this.Recordings.Count - ((int)(this.Recordings.Count / 10) * 10))
 			);
 
 			this.Recordings.Add(new CPlayerRecording());
