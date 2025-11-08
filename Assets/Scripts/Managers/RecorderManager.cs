@@ -9,6 +9,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 	public class RecorderManager : Singleton<RecorderManager> {
 		[System.Serializable]
 		public class CPlayerRecording {
+			public Color Color;
 			public List<Vector2> Positions = new List<Vector2>();
 		}
 
@@ -16,6 +17,9 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			Recording,
 			Replaying,
 		}
+
+		[ConfigGroup, SerializeField]
+		private List<Color> replayColors;
 
 		[RuntimeGroup]
 		public List<CPlayerRecording> Recordings = new List<CPlayerRecording>();
@@ -29,7 +33,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		PlayerController player => ReferenceManager.Instance.PlayerController;
 
 		private void Start() {
-			this.Recordings.Add(new CPlayerRecording());
+			this.NewRecording();
 			this.State = EState.Recording;
 		}
 
@@ -44,6 +48,14 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			}
 		}
 
+		private void NewRecording() {
+			CPlayerRecording rec = new CPlayerRecording() {
+				Color = this.replayColors[this.Recordings.Count % replayColors.Count]
+			};
+
+			this.Recordings.Add(rec);
+		}
+
 		private void Replay() {
 			GameObject newReplayer = Instantiate(
 				original: ReferenceManager.Instance.PlayerRecordingPrefab,
@@ -53,7 +65,9 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			);
 
 			Replayer replayer = newReplayer.GetComponent<Replayer>();
+			
 			replayer.Recording = this.Current;
+			replayer.Initialize();
 
 			this.Replayers.Add(replayer);
 
@@ -63,11 +77,15 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 			Vector2 startPos = ReferenceManager.Instance.PlayerStartPosition;
 			this.player.transform.position = new Vector2(
-				startPos.x + (this.player.transform.localScale.x * 2) * (int)(this.Recordings.Count / 10),
-				startPos.y + (this.player.transform.localScale.y * 2) * (this.Recordings.Count - ((int)(this.Recordings.Count / 10) * 10))
+				startPos.x
+				+ (this.player.transform.localScale.x * 2)
+				* (int)(this.Recordings.Count / this.replayColors.Count),
+				startPos.y
+				+ (this.player.transform.localScale.y * 2)
+				* (this.Recordings.Count - ((int)(this.Recordings.Count / this.replayColors.Count) * this.replayColors.Count))
 			);
 
-			this.Recordings.Add(new CPlayerRecording());
+			this.NewRecording();
 		}
 	}
 }

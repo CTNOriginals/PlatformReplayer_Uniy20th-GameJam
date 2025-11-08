@@ -3,6 +3,7 @@ using CTNOriginals.PlatformReplayer.Managers;
 using UnityEngine;
 
 namespace CTNOriginals.PlatformReplayer.Player {
+	[RequireComponent(typeof(SpriteRenderer))]
 	public class Replayer : MonoBehaviour {
 		public enum EState {
 			Idle,
@@ -14,6 +15,15 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		public EState State = EState.Idle;
 
 		public int Index;
+
+		public void Initialize() {
+			this.GetComponent<SpriteRenderer>().color = this.Recording.Color;
+		}
+
+		public void StartReplayer() {
+			this.Index = 0;
+			this.State = EState.Replaying;
+		}
 
 		private void FixedUpdate() {
 			if (this.State != EState.Replaying) {
@@ -29,9 +39,6 @@ namespace CTNOriginals.PlatformReplayer.Player {
 			this.Index++;
 		}
 
-		public void StartReplayer() {
-			this.Index = 0;
-			this.State = EState.Replaying;
-		}
+		
 	}
 }

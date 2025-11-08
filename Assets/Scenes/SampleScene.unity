@@ -515,10 +515,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bdb3f30f41c58f4a83a478301ebec53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  replayColors:
+  - {r: 0, g: 0.10208559, b: 1, a: 1}
+  - {r: 0, g: 0.48477888, b: 1, a: 1}
+  - {r: 0, g: 0.8622582, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0.6, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 1, g: 0.97001815, b: 0, a: 1}
+  - {r: 1, g: 0.44935164, b: 0, a: 1}
+  - {r: 1, g: 0, b: 0.021577835, a: 1}
+  - {r: 1, g: 0, b: 0.98475456, a: 1}
+  - {r: 0.39488173, g: 0, b: 1, a: 1}
   Recordings: []
   Replayers: []
-  D_pos: {x: 2, y: 2}
-  D_count: 11
   State: 0
 --- !u!114 &1041279694
 MonoBehaviour:
