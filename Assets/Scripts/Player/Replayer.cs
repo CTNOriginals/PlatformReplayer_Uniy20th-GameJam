@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CTNOriginals.PlatformReplayer.Managers;
 using UnityEngine;
 
 namespace CTNOriginals.PlatformReplayer.Player {
@@ -9,7 +10,7 @@ namespace CTNOriginals.PlatformReplayer.Player {
 			Done,
 		}
 
-		public List<Vector2> Positions;
+		public RecorderManager.CPlayerRecording Recording;
 		public EState State = EState.Idle;
 
 		public int Index;
@@ -19,12 +20,12 @@ namespace CTNOriginals.PlatformReplayer.Player {
 				return;
 			}
 
-			if (Index >= Positions.Count) {
+			if (Index >= this.Recording.Positions.Count) {
 				this.State = EState.Done;
 				return;
 			}
 
-			this.transform.position = this.Positions[this.Index];
+			this.transform.position = this.Recording.Positions[this.Index];
 			this.Index++;
 		}
 

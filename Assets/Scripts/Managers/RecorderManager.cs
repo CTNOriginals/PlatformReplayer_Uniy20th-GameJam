@@ -53,7 +53,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			);
 
 			Replayer replayer = newReplayer.GetComponent<Replayer>();
-			replayer.Positions = this.Current.Positions;
+			replayer.Recording = this.Current;
 
 			this.Replayers.Add(replayer);
 

@@ -46,12 +46,12 @@ namespace CTNOriginals.PlatformReplayer.Player {
 				if (
 					this._replayer.State != Replayer.EState.Replaying
 					|| this._replayer.Index == 0
-					|| this._replayer.Index >= this._replayer.Positions.Count
+					|| this._replayer.Index >= this._replayer.Recording.Positions.Count
 				) {
 					return Vector2.zero;
 				}
 				
-				return this._replayer.Positions[this._replayer.Index] - this._replayer.Positions[this._replayer.Index - 1];
+				return this._replayer.Recording.Positions[this._replayer.Index] - this._replayer.Recording.Positions[this._replayer.Index - 1];
 			}
 		}
 	}
