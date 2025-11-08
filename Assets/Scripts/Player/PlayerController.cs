@@ -28,6 +28,10 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		[RuntimeGroup, SerializeField]
 		private bool _isGrounded;
 
+		public Vector2 D_step;
+		public float D_face;
+		public float D_collFace;
+
 		PlayerInput playerInput;
 		Rigidbody2D rb;
 
@@ -37,16 +41,40 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		}
 
 		private void FixedUpdate() {
-			Vector2 step = Vector2.zero;
 
 			this._currentSpeed = this.GetMovementSpeed();
 			this._velocity = this.GetPlayerVelocity(this._velocity, this._currentSpeed);
 
-			this.transform.position += (Vector3)this._velocity * Time.fixedDeltaTime;
+			Vector2 step = this._velocity * Time.fixedDeltaTime;
+			Vector2 dir = new Vector2(
+				(step.x > 0) ? 1 : (step.x < 0) ? -1 : 0,
+				(step.y > 0) ? 1 : (step.y < 0) ? -1 : 0
+			);
+
+			D_step = step;
+
+			Collider2D groundCollider = Physics2D.OverlapBox((Vector2)this.transform.position + step, this.transform.localScale, 0, LayerMask.GetMask(new string[] { "Ground" }));
+			Collider2D wallCollider = Physics2D.OverlapBox((Vector2)this.transform.position + step, this.transform.localScale, 0, LayerMask.GetMask(new string[] { "Wall" }));
+			
+			if (groundCollider) {
+				this._velocity.y = 0;
+				step.y = 0;
+			}
+			if (wallCollider) {
+				this._velocity.x = 0;
+				step.x = 0;
+			}
+			
+			this.transform.position += (Vector3)step;
 		}
 
 		public bool IsGrounded() {
-			this._isGrounded = Physics2D.OverlapBox(this.transform.position, this.transform.localScale, 0f, LayerMask.GetMask(new string[] { "Ground" })) != null;
+			this._isGrounded = Physics2D.OverlapBox(
+				this.transform.position - new Vector3(0, 0.01f, 0),
+				this.transform.localScale - new Vector3(0.05f, 0, 0), // Dont include the sides of the player
+				0,
+				LayerMask.GetMask(new string[] { "Ground" })
+			) != null;
 			return this._isGrounded;
 		}
 		
