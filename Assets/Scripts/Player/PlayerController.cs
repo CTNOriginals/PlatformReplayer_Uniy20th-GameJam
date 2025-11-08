@@ -5,7 +5,6 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace CTNOriginals.PlatformReplayer.Player {
-	[RequireComponent(typeof(PlayerInput), typeof(Rigidbody2D))]
 	public class PlayerController : MonoBehaviour {
 		[ConfigGroup, SerializeField, Range(0, 100)]
 		private float _baseSpeed = 10;
@@ -15,14 +14,19 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		[ConfigGroup, SerializeField, Range(0, -100)]
 		private float _gravity = -9.81f;
 
+		[RuntimeGroup, FoldoutGroup("Runtime/Movement State"), ReadOnly, InlineProperty, HideLabel]
+		[Tooltip("The time that passed while the player is pressing any movement inputs")]
+		public CTimeSlice MovementState = new CTimeSlice(false);
+
 		[ConfigGroup, SerializeField, InlineProperty]
 		[Tooltip("Player Acceleration from stationary to moving")]
 		private SCurveTime _initialAccel;
 
+
 		[RuntimeGroup, SerializeField]
-		private float _currentSpeed;
+		private float _currentSpeed = 0;
 		[RuntimeGroup, SerializeField]
-		private Vector2 _velocity;
+		private Vector2 _velocity = Vector2.zero;
 		[RuntimeGroup, SerializeField]
 		private Vector2 _moveDir;
 
@@ -36,18 +40,40 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		[RuntimeGroup, SerializeField]
 		private Transform _wallRight;
 
-		[RuntimeGroup, SerializeField]
+		[RuntimeGroup]
 		public Vector2 Step;
 
+		//? Is this instance the actual player or a replayer?
+		private bool _isPlayer;
+
+		public Vector2 MoveDirection { get; private set; }
+		// {
+		// 	get {
+		// 		if (!this._isPlayer) {
+		// 			return this.replayer.MoveDirections[this.replayer.Index];
+		// 		}
+
+		// 		return this.MoveDirection;
+		// 	}
+		// }
+
 		PlayerInput playerInput;
-		Rigidbody2D rb;
+		Replayer replayer;
 
 		private void Awake() {
-			this.playerInput = this.GetComponent<PlayerInput>();
-			this.rb = this.GetComponent<Rigidbody2D>();
+			if (this.TryGetComponent<PlayerInput>(out this.playerInput)) {
+				this._isPlayer = true;
+			} else if (this.TryGetComponent<Replayer>(out this.replayer)) {
+				this._isPlayer = false;
+			} else {
+				throw new System.Exception("Unknown player type");
+			}
 		}
 
 		private void FixedUpdate() {
+			this.MoveDirection = (this._isPlayer) ? this.playerInput.MoveDirection : this.replayer.GetMoveDirection();
+
+			this.CheckMovementState();
 			this._currentSpeed = this.GetMovementSpeed();
 			this._velocity = this.GetPlayerVelocity(this._velocity, this._currentSpeed);
 
@@ -62,11 +88,11 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		}
 		
 		private float GetMovementSpeed() {
-			if (!this.playerInput.MovementState.IsActive) {
+			if (!this.MovementState.IsActive) {
 				return 0;
 			}
 
-			return this._baseSpeed * this._initialAccel.GetValue(playerInput.MovementState.Duration);
+			return this._baseSpeed * this._initialAccel.GetValue(this.MovementState.Duration);
 		}
 
 		/// <summary>
@@ -79,7 +105,7 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		private Vector2 GetPlayerVelocity(Vector3 velocity, float speed) {
 			//? Clamp the magnitude to prevent the player from gaining more speed 
 			//? while more then 1 input is held down at the same time, like holding W and D.
-			this._moveDir = Vector2.ClampMagnitude(playerInput.MoveDirection, 1);
+			this._moveDir = Vector2.ClampMagnitude(this.MoveDirection, 1);
 
 			Vector2 newVelocity = new Vector2 {
 				x = this._moveDir.x * speed,
@@ -92,7 +118,7 @@ namespace CTNOriginals.PlatformReplayer.Player {
 			if (_isGrounded) {
 				newVelocity.y = 0;
 
-				if (this.playerInput.Jump.State.IsActive) {
+				if (this.MoveDirection.y > 0) {
 					/* Calculate the jump force of the player.
 						? The jump force is calculated with (-2 * gravity) to be able to counteract the force of gravity on the player,
 						? the -2 reverses the force of gravity (which should be a negative number) and then doubles it upwards
@@ -108,10 +134,19 @@ namespace CTNOriginals.PlatformReplayer.Player {
 			return newVelocity;
 		}
 
+		private void CheckMovementState() {
+			//? Register the start/end of any movement inputs being pressed
+			if (!this.MovementState.IsActive && this.MoveDirection != Vector2.zero) {
+				this.MovementState.Start();
+			} else if (this.MovementState.IsActive && this.MoveDirection == Vector2.zero) {
+				this.MovementState.End();
+			}
+		}
+
 		private void OnCollisionEnter2D(Collision2D other) {
 			Vector2 normal = other.GetContact(0).normal;
 			
-			switch (other.transform.tag) {
+			switch (other.collider.transform.tag) {
 				case "Ground": 
 					if (normal == Vector2.up) {
 						this._isGrounded = true;
@@ -129,7 +164,7 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		}
 		
 		private void OnCollisionExit2D(Collision2D other) {
-			switch (other.transform.tag) {
+			switch (other.collider.transform.tag) {
 				case "Ground":
 					if (other.transform == this._ground) {
 						this._isGrounded = false;

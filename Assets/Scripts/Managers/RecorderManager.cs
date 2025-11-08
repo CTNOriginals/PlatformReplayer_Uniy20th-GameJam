@@ -9,7 +9,12 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 	public class RecorderManager : Singleton<RecorderManager> {
 		[System.Serializable]
 		public class CPlayerRecording {
-			public List<Vector2> Positions = new List<Vector2>();
+			public Vector2 StartPosition;
+			public List<Vector2> MoveDirections = new List<Vector2>();
+
+			public CPlayerRecording(Vector2 pos) {
+				this.StartPosition = pos;
+			}
 		}
 
 		public enum EState {
@@ -29,12 +34,12 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		PlayerController player => ReferenceManager.Instance.PlayerController;
 
 		private void Start() {
-			this.Recordings.Add(new CPlayerRecording());
+			this.Recordings.Add(new CPlayerRecording(this.player.transform.position));
 			this.State = EState.Recording;
 		}
 
 		private void FixedUpdate() {
-			this.Current.Positions.Add(this.player.transform.position);
+			this.Current.MoveDirections.Add(this.player.MoveDirection);
 		}
 
 		private void Update() {
@@ -47,13 +52,13 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		private void Replay() {
 			GameObject newReplayer = Instantiate(
 				original: ReferenceManager.Instance.PlayerRecordingPrefab,
-				position: this.Current.Positions[0],
+				position: this.Current.MoveDirections[0],
 				rotation: ReferenceManager.Instance.PlayerRecordingPrefab.transform.rotation,
 				parent: ReferenceManager.Instance.ReplayerHolder
 			);
 
 			Replayer replayer = newReplayer.GetComponent<Replayer>();
-			replayer.Positions = this.Current.Positions;
+			replayer.Recording = this.Current;
 
 			this.Replayers.Add(replayer);
 
@@ -67,7 +72,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 				startPos.y + (this.player.transform.localScale.y * 2) * (this.Recordings.Count - ((int)(this.Recordings.Count / 10) * 10))
 			);
 
-			this.Recordings.Add(new CPlayerRecording());
+			this.Recordings.Add(new CPlayerRecording(this.player.transform.position));
 		}
 	}
 }

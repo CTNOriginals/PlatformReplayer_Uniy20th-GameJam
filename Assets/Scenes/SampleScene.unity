@@ -517,8 +517,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Recordings: []
   Replayers: []
-  D_pos: {x: 2, y: 2}
-  D_count: 11
   State: 0
 --- !u!114 &1041279694
 MonoBehaviour:

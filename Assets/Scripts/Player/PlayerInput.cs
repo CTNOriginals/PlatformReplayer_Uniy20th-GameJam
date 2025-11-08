@@ -19,10 +19,6 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		[RuntimeGroup]
 		public Vector2 MoveDirection;
 
-		[RuntimeGroup, FoldoutGroup("Runtime/Movement State"), ReadOnly, InlineProperty, HideLabel]
-		[Tooltip("The time that passed while the player is pressing any movement inputs")]
-		public CTimeSlice MovementState = new CTimeSlice(false);
-
 		private List<InputState> _inputStates = new List<InputState>();
 
 		private void Awake() {
@@ -40,19 +36,19 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		private void FixedUpdate() {
 			_inputStates.ForEach((input) => { input.FixedUpdate(); });
 
-			MoveDirection = Vector2.zero;
+			MoveDirection = this.GetMoveDirection();
+		}
+
+		private Vector2 GetMoveDirection() {
+			Vector2 moveDir = Vector2.zero;
+
 			foreach (InputState input in _inputStates) {
 				if (!input.State.IsActive) { continue; }
 
-				MoveDirection += input.Direction;
+				moveDir += input.Direction;
 			}
 
-			//? Register the start/end of any movement inputs being pressed
-			if (!MovementState.IsActive && MoveDirection != Vector2.zero) {
-				MovementState.Start();
-			} else if (MovementState.IsActive && MoveDirection == Vector2.zero) {
-				MovementState.End();
-			}
+			return moveDir;
 		}
 	}
 }
