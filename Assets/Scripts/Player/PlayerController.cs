@@ -7,11 +7,6 @@ using UnityEngine;
 namespace CTNOriginals.PlatformReplayer.Player {
 	[RequireComponent(typeof(PlayerInput), typeof(Rigidbody2D))]
 	public class PlayerController : MonoBehaviour {
-		[ReferenceGroup, SerializeField]
-		private GameObject EyeLeft;
-		[ReferenceGroup, SerializeField]
-		private GameObject EyeRight;
-
 		[ConfigGroup, SerializeField, Range(0, 100)]
 		private float _baseSpeed = 10;
 		[ConfigGroup, SerializeField, Range(0, 100)]
@@ -41,7 +36,8 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		[RuntimeGroup, SerializeField]
 		private Transform _wallRight;
 
-		public Vector2 D_step;
+		[RuntimeGroup, SerializeField]
+		public Vector2 Step;
 
 		PlayerInput playerInput;
 		Rigidbody2D rb;
@@ -55,23 +51,14 @@ namespace CTNOriginals.PlatformReplayer.Player {
 			this._currentSpeed = this.GetMovementSpeed();
 			this._velocity = this.GetPlayerVelocity(this._velocity, this._currentSpeed);
 
-			Vector2 step = this._velocity * Time.fixedDeltaTime;
+			Step = this._velocity * Time.fixedDeltaTime;
 
-			if (step.x < 0 && _wallLeft != null || step.x > 0 && _wallRight != null) {
+			if (Step.x < 0 && _wallLeft != null || Step.x > 0 && _wallRight != null) {
 				this._velocity.x = 0;
-				step.x = 0;
+				Step.x = 0;
 			}
 			
-			Vector2 dir = step.Direction();
-			if (dir.x == 1 && !EyeRight.activeSelf) {
-				EyeLeft.SetActive(false);
-				EyeRight.SetActive(true);
-			} else if (dir.x == -1 && !EyeLeft.activeSelf) {
-				EyeLeft.SetActive(true);
-				EyeRight.SetActive(false);
-			}
-			
-			this.transform.position += (Vector3)step;
+			this.transform.position += (Vector3)Step;
 		}
 		
 		private float GetMovementSpeed() {

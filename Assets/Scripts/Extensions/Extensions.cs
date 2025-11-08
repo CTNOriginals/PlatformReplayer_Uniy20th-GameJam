@@ -17,12 +17,8 @@ namespace CTNOriginals.PlatformReplayer.Extensions {
 			return new Vector2(vector.x, vector.y - num);
 		}
 
-		public static Vector3 Direction(this Vector3 vector) {
-			return new Vector3(
-				(vector.x > 0) ? 1 : (vector.x < 0) ? -1 : 0,
-				(vector.y > 0) ? 1 : (vector.y < 0) ? -1 : 0,
-				(vector.z > 0) ? 1 : (vector.z < 0) ? -1 : 0
-			);
+		public static float Direction(this float num) {
+			return (num > 0) ? 1 : (num < 0) ? -1 : 0;
 		}
 		public static Vector2 Direction(this Vector2 vector) {
 			return new Vector2(
@@ -30,5 +26,14 @@ namespace CTNOriginals.PlatformReplayer.Extensions {
 				(vector.y > 0) ? 1 : (vector.y < 0) ? -1 : 0
 			);
 		}
+		public static Vector3 Direction(this Vector3 vector) {
+			return new Vector3(
+				(vector.x > 0) ? 1 : (vector.x < 0) ? -1 : 0,
+				(vector.y > 0) ? 1 : (vector.y < 0) ? -1 : 0,
+				(vector.z > 0) ? 1 : (vector.z < 0) ? -1 : 0
+			);
+		}
+
+		
 	}
 }
