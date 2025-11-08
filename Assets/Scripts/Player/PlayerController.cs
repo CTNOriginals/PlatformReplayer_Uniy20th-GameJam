@@ -1,7 +1,106 @@
+using CTNOriginals.PlatformReplayer.Attributes.Composite;
+using CTNOriginals.PlatformReplayer.Extensions;
+using CTNOriginals.PlatformReplayer.Utilities;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace CTNOriginals.PlatformReplayer.Player {
+	[RequireComponent(typeof(PlayerInput), typeof(Rigidbody2D))]
 	public class PlayerController : MonoBehaviour {
+		[ConfigGroup, SerializeField, Range(0, 100)]
+		private float _baseSpeed = 10;
+		[ConfigGroup, SerializeField, Range(0, 100)]
+		private float _jumpForce = 10;
+
+		[ConfigGroup, SerializeField, Range(0, -100)]
+		private float _gravity = -9.81f;
+
+		[ConfigGroup, SerializeField, InlineProperty]
+		[Tooltip("Player Acceleration from stationary to moving")]
+		private SCurveTime _initialAccel;
+
+		[RuntimeGroup, SerializeField]
+		private float _currentSpeed;
+		[RuntimeGroup, SerializeField]
+		private Vector2 _velocity;
+		[RuntimeGroup, SerializeField]
+		private Vector2 _moveDir;
+		[RuntimeGroup, SerializeField]
+		private bool _isGrounded;
+
+		public Vector2 D_travelArea;
+		[ShowInInspector]
+		public Collider2D D_collider;
+
+		PlayerInput playerInput;
+		Rigidbody2D rb;
+		private void Awake() {
+			this.playerInput = this.GetComponent<PlayerInput>();
+			this.rb = this.GetComponent<Rigidbody2D>();
+		}
+
+		private void FixedUpdate() {
+			Vector2 step = Vector2.zero;
+
+			this._currentSpeed = this.GetMovementSpeed();
+			this._velocity = this.GetPlayerVelocity(this._velocity, this._currentSpeed);
+
+			this.transform.position += (Vector3)this._velocity * Time.fixedDeltaTime;
+		}
+
+		public bool IsGrounded() {
+			this._isGrounded = Physics2D.OverlapBox(this.transform.position, this.transform.localScale, 0f, LayerMask.GetMask(new string[] { "Ground" })) != null;
+			return this._isGrounded;
+		}
 		
+		private float GetMovementSpeed() {
+			if (!playerInput.MovementState.IsActive) {
+				return 0;
+			}
+
+			float speed = _baseSpeed * _initialAccel.GetValue(playerInput.MovementState.Duration);
+
+			return speed;
+		}
+
+		/// <summary>
+		/// Calculates the players velocity for this fixed frame based on current velocity and speed.
+		/// </summary>
+		/// <param name="velocity">The current velocity of the player</param>
+		/// <param name="speed">The current speed value of the player</param>
+		/// <remarks>Currently ignores the current x and z velocity axis that are passed in</remarks>
+		/// <returns>The player's velocity during this fixed frame</returns>
+		private Vector2 GetPlayerVelocity(Vector3 velocity, float speed) {
+			//? Clamp the magnitude to prevent the player from gaining more speed 
+			//? while more then 1 input is held down at the same time, like holding W and D.
+			_moveDir = Vector2.ClampMagnitude(playerInput.MoveDirection, 1);
+
+			Vector2 newVelocity = new Vector2 {
+				x = _moveDir.x * speed,
+				y = velocity.y,
+			};
+
+			if (this.IsGrounded()) {
+				if (velocity.y < 0) {
+					newVelocity.y = 0;
+				}
+
+				if (playerInput.Jump.State.IsActive) {
+					/* Calculate the jump force of the player.
+						? The jump force is calculated with (-2 * gravity) to be able to counteract the force of gravity on the player,
+						? the -2 reverses the force of gravity (which should be a negative number) and then doubles it upwards
+						? to allow the player to jump with by applying this force in just one fixed frame instead of applying a force over multiple frames.
+						? This effectively calculates the force needed to push the player up to a fixed height (_jumpForce) 
+						? which will be the peak of the jump before falling down again. 
+					*/
+					newVelocity.y = Mathf.Sqrt(_jumpForce * -2 * _gravity);
+				}
+			}
+
+			//* Apply gravity
+			newVelocity.y += _gravity * Time.fixedDeltaTime;
+
+			return newVelocity;
+		}
 	}
 }
