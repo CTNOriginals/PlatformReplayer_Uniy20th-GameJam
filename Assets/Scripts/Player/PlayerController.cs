@@ -28,12 +28,9 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		[RuntimeGroup, SerializeField]
 		private bool _isGrounded;
 
-		public Vector2 D_travelArea;
-		[ShowInInspector]
-		public Collider2D D_collider;
-
 		PlayerInput playerInput;
 		Rigidbody2D rb;
+
 		private void Awake() {
 			this.playerInput = this.GetComponent<PlayerInput>();
 			this.rb = this.GetComponent<Rigidbody2D>();
@@ -54,13 +51,11 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		}
 		
 		private float GetMovementSpeed() {
-			if (!playerInput.MovementState.IsActive) {
+			if (!this.playerInput.MovementState.IsActive) {
 				return 0;
 			}
 
-			float speed = _baseSpeed * _initialAccel.GetValue(playerInput.MovementState.Duration);
-
-			return speed;
+			return this._baseSpeed * this._initialAccel.GetValue(playerInput.MovementState.Duration);;
 		}
 
 		/// <summary>
@@ -73,19 +68,22 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		private Vector2 GetPlayerVelocity(Vector3 velocity, float speed) {
 			//? Clamp the magnitude to prevent the player from gaining more speed 
 			//? while more then 1 input is held down at the same time, like holding W and D.
-			_moveDir = Vector2.ClampMagnitude(playerInput.MoveDirection, 1);
+			this._moveDir = Vector2.ClampMagnitude(playerInput.MoveDirection, 1);
 
 			Vector2 newVelocity = new Vector2 {
-				x = _moveDir.x * speed,
+				x = this._moveDir.x * speed,
 				y = velocity.y,
 			};
+
+			//* Apply gravity
+			newVelocity.y += this._gravity * Time.fixedDeltaTime;
 
 			if (this.IsGrounded()) {
 				if (velocity.y < 0) {
 					newVelocity.y = 0;
 				}
 
-				if (playerInput.Jump.State.IsActive) {
+				if (this.playerInput.Jump.State.IsActive) {
 					/* Calculate the jump force of the player.
 						? The jump force is calculated with (-2 * gravity) to be able to counteract the force of gravity on the player,
 						? the -2 reverses the force of gravity (which should be a negative number) and then doubles it upwards
@@ -93,12 +91,10 @@ namespace CTNOriginals.PlatformReplayer.Player {
 						? This effectively calculates the force needed to push the player up to a fixed height (_jumpForce) 
 						? which will be the peak of the jump before falling down again. 
 					*/
-					newVelocity.y = Mathf.Sqrt(_jumpForce * -2 * _gravity);
+					newVelocity.y = Mathf.Sqrt(this._jumpForce * -2 * _gravity);
 				}
 			}
-
-			//* Apply gravity
-			newVelocity.y += _gravity * Time.fixedDeltaTime;
+			
 
 			return newVelocity;
 		}
