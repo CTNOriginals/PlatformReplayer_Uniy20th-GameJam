@@ -252,6 +252,8 @@ PrefabInstance:
     - {fileID: 4691947231552808835, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
     - {fileID: 1734825350361736653, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
     - {fileID: 1833135063834893646, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
+    - {fileID: 4623713691611663969, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
+    - {fileID: -2863695854938362397, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4902192972104553135, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
@@ -285,7 +287,6 @@ MonoBehaviour:
   Recording:
     Color: {r: 0, g: 0, b: 0, a: 0}
     Positions: []
-  State: 0
   Index: 0
 --- !u!4 &4444040001865377956 stripped
 Transform:
