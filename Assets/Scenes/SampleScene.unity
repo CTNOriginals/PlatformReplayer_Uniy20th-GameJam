@@ -852,25 +852,25 @@ MonoBehaviour:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: -1
-        inSlope: -5.944451
-        outSlope: -5.944451
-        tangentMode: 0
+        value: 1
+        inSlope: 5.3238063
+        outSlope: 0
+        tangentMode: 1
         weightedMode: 0
-        inWeight: 0.08584249
-        outWeight: 0
+        inWeight: 0.07692313
+        outWeight: 0.33333334
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     TimeFactor: 1
   audioReverseTimeStep: 0.01
-  audioMaxReversePitch: -1.5
-  D_index: 100
+  audioMaxReversePitch: 1.5
+  D_index: 70
   D_dir: -1
   D_timeSteps: 0
-  D_steps: 1
-  D_prog: 1
-  D_pitch: 1
+  D_steps: 0.7
+  D_prog: 0.7
+  D_pitch: 0.09645728
   Recordings: []
   Replayers: []
   State: 0

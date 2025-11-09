@@ -41,7 +41,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			In other words, this value is how many seconds each step takes.
 		")]
 		private float audioReverseTimeStep;
-		[ConfigGroup, Range(0, -3), SerializeField]
+		[ConfigGroup, Range(0, 3), SerializeField]
 		private float audioMaxReversePitch;
 
 		[Range(0, 100)] public int D_index;
@@ -116,12 +116,12 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			StartCoroutine(this.Rewind());
 		}
 
-		private float GetPitch(int step, int dir) {
+		private float GetPitch(int step) {
 			D_steps = this.audioReverseTimeStep * step;
 			D_prog = (this.audioReverseCurve.TimeFactor / 100) * D_steps * 100;
-			D_pitch = (this.audioReverseCurve.GetValue(D_prog) * dir);
+			D_pitch = (this.audioReverseCurve.GetValue(D_prog));
 
-			return D_pitch;
+			return Mathf.Clamp(D_pitch, 0.1f, 1);
 		}
 
 		private IEnumerator ReverseAudio() {
@@ -129,14 +129,14 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			D_timeSteps = timeSteps;
 
 			WaitForSeconds timeStepWait = new WaitForSeconds(this.audioReverseTimeStep);
-			int dir = (this.audioSource.pitch > 0) ? -1 : 1;
+			// int dir = (this.audioSource.pitch > 0) ? -1 : 1;
 
 			for (int i = 0; i < timeSteps; i++) {
-				this.audioSource.pitch = this.GetPitch(i, dir * -1);
+				this.audioSource.pitch = this.GetPitch(i);
 				yield return timeStepWait;
 			}
 			
-			this.audioSource.pitch = dir;
+			this.audioSource.pitch = 1;
 		}
 
 		private IEnumerator Rewind() {
@@ -195,7 +195,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		}
 		
 		private void OnValidate() {
-			this.GetPitch(D_index, D_dir);
+			this.GetPitch(D_index);
 		}
 	}
 	

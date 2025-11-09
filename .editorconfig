@@ -40,3 +40,9 @@ dotnet_analyzer_diagnostic.category-Style.severity = none
 
 # UNT0028: Use non-allocating physics APIs
 dotnet_diagnostic.UNT0028.severity = none
+
+# UDR0005: Domain Reload Analyzer
+dotnet_diagnostic.UDR0005.severity = none
+
+# UDR0001: Domain Reload Analyzer
+dotnet_diagnostic.UDR0001.severity = none
