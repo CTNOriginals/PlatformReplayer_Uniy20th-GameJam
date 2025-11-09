@@ -26,6 +26,8 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 		public TMP_Text TimerText;
 
+		public AudioSource AudioSource;
+
 		private void Start() {
 			this.PlayerStartPosition = this.PlayerController.transform.position;
 		}

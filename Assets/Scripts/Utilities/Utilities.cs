@@ -58,6 +58,9 @@ namespace CTNOriginals.PlatformReplayer.Utilities {
 		public float GetValue(float time) {
 			return this.Curve.Evaluate(time / this.TimeFactor);
 		}
+		public float GetInverseValue(float time) {
+			return this.Curve.Evaluate(this.TimeFactor - (time / this.TimeFactor));
+		}
 	}
 	
 	[System.Serializable]

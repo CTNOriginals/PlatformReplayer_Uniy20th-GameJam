@@ -40,9 +40,9 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 			if (currentTime != TimeLeft) {
 				this.TimeLeft = currentTime;
-				
+
 				if (this.TimeLeft < 0) {
-					StartCoroutine(RecorderManager.Instance.Rewind());
+					RecorderManager.Instance.DoRewind();
 					return;
 				}
 				

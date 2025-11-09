@@ -366,7 +366,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 0538bcb833f81dc42b39e747f9fbc609, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -802,7 +802,7 @@ MonoBehaviour:
   - {r: 1, g: 0, b: 0.98475456, a: 1}
   - {r: 0.39488173, g: 0, b: 1, a: 1}
   rewindTime:
-    Min: 0.01
+    Min: 0.005
     Max: 0.001
   rewindTimeCurve:
     serializedVersion: 2
@@ -828,6 +828,49 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  audioReverseCurve:
+    Curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: -5.7507367
+        outSlope: -5.7507367
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.09133315
+      - serializedVersion: 3
+        time: 0.5
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: -1
+        inSlope: -5.944451
+        outSlope: -5.944451
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.08584249
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    TimeFactor: 1
+  audioReverseTimeStep: 0.01
+  audioMaxReversePitch: -1.5
+  D_index: 100
+  D_dir: -1
+  D_timeSteps: 0
+  D_steps: 1
+  D_prog: 1
+  D_pitch: 1
   Recordings: []
   Replayers: []
   State: 0
@@ -1692,7 +1735,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4902192972104553135, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -23
+      value: -22.5125
       objectReference: {fileID: 0}
     - target: {fileID: 4902192972104553135, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1700,7 +1743,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4902192972104553135, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.1
       objectReference: {fileID: 0}
     - target: {fileID: 4902192972104553135, guid: e58e016b8f8a288409e94451b9d9cab0, type: 3}
       propertyPath: m_LocalRotation.w

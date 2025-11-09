@@ -21,6 +21,8 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 		[ConfigGroup, SerializeField]
 		private List<Color> replayColors;
+
+		[Space]
 		
 		[ConfigGroup, InlineProperty, SerializeField]
 		[Tooltip("The amoutn of time between each frame while rewinding.\nThe value is lerped between the min and max, where max will be the value at the very last frame")]
@@ -28,10 +30,31 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		[ConfigGroup, SerializeField]
 		private AnimationCurve rewindTimeCurve;
 
+		[Space]
+
+		[ConfigGroup, InlineProperty, SerializeField]
+		[Tooltip("The time factor will be halved and the curve will be evaluated twice, one for down, the next for reverse up into negative pitch.")]
+		private SCurveTime audioReverseCurve;
+		[ConfigGroup, Range(0, 0.5f), SerializeField]
+		[Tooltip(@"This will dictate how detauled the audio reverse is.
+			if this value is 0.1f and the time factor of the curve 1.0f, the pitch will be adjusted 10 times.
+			In other words, this value is how many seconds each step takes.
+		")]
+		private float audioReverseTimeStep;
+		[ConfigGroup, Range(0, -3), SerializeField]
+		private float audioMaxReversePitch;
+
+		[Range(0, 100)] public int D_index;
+		[Range(-1, 1)] public int D_dir;
+		[ReadOnly] public float D_timeSteps;
+		[ReadOnly] public float D_steps;
+		[ReadOnly] public float D_prog;
+		[ReadOnly] public float D_pitch;
+
 		[RuntimeGroup]
 		public List<CPlayerRecording> Recordings = new List<CPlayerRecording>();
 		public CPlayerRecording Current => this.Recordings[this.Recordings.Count - 1];
-
+		[RuntimeGroup]
 		public List<Replayer> Replayers;
 
 		[RuntimeGroup]
@@ -39,6 +62,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 		PlayerController player => ReferenceManager.Instance.PlayerController;
 		ReferenceManager.EGameState gameState => ReferenceManager.Instance.GameState;
+		AudioSource audioSource => ReferenceManager.Instance.AudioSource;
 
 		private void Start() {
 			this.NewRecording();
@@ -54,8 +78,12 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		}
 
 		private void Update() {
+			if (gameState != ReferenceManager.EGameState.Playing) {
+				return;
+			}
+
 			if (Input.GetKeyDown(KeyCode.R)) {
-				StartCoroutine(this.Rewind());
+				this.DoRewind();
 			}
 		}
 
@@ -67,12 +95,12 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			this.Recordings.Add(rec);
 		}
 
-		private Replayer InitializeRewind() {
+		public void DoRewind() {
 			ReferenceManager.Instance.GameState = ReferenceManager.EGameState.Rewinding;
 
 			GameObject newReplayer = Instantiate(
 				original: ReferenceManager.Instance.PlayerRecordingPrefab,
-				position: this.Current.Positions[0],
+				position: this.Current.Positions[this.Current.Positions.Count - 1],
 				rotation: ReferenceManager.Instance.PlayerRecordingPrefab.transform.rotation,
 				parent: ReferenceManager.Instance.ReplayerHolder
 			);
@@ -85,11 +113,42 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 			this.player.gameObject.SetActive(false);
 
-			return replayer;
+			StartCoroutine(this.Rewind());
 		}
 
-		public IEnumerator Rewind() {
-			this.InitializeRewind();
+		private float GetPitch(int step, int dir) {
+			// if (!Application.isPlaying) {
+			// 	dir = D_dir;
+			// }
+
+
+			D_steps = this.audioReverseTimeStep * step;
+			D_prog = (this.audioReverseCurve.TimeFactor / 100) * D_steps * 100;
+			D_pitch = (this.audioReverseCurve.GetValue(D_prog) * dir);
+
+			// D_pitch = (D_pitch > 0) ? D_pitch : D_pitch * Time.fixedDeltaTime / rewindTime.Min;
+
+			return D_pitch;
+		}
+
+		private IEnumerator ReverseAudio() {
+			int timeSteps = Mathf.RoundToInt(this.audioReverseCurve.TimeFactor / this.audioReverseTimeStep);
+			D_timeSteps = timeSteps;
+
+			WaitForSeconds timeStepWait = new WaitForSeconds(this.audioReverseTimeStep);
+			int dir = (this.audioSource.pitch > 0) ? -1 : 1;
+
+			for (int i = 0; i < timeSteps; i++) {
+				this.audioSource.pitch = this.GetPitch(i, dir * -1);
+				yield return timeStepWait;
+			}
+
+			// this.audioSource.pitch = ((D_pitch > 0) ? 1 : Time.fixedDeltaTime / rewindTime.Min) * dir;
+			this.audioSource.pitch = dir;
+		}
+
+		private IEnumerator Rewind() {
+			yield return StartCoroutine(this.ReverseAudio());
 
 			for (int i = this.Current.Positions.Count; i >= 0; i--) {
 				foreach (Replayer replayer in this.Replayers) {
@@ -107,11 +166,17 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 				TimeManager.Instance.SetTimerPercentage(progress);
 
+				this.audioSource.pitch = Mathf.Lerp(D_pitch, audioMaxReversePitch, progressCurve);
+
 				yield return new WaitForSeconds(waitTime);
 			}
 
+			yield return StartCoroutine(this.ReverseAudio());
+
+			this.audioSource.Stop();
+			this.audioSource.Play();
+
 			this.Replay();
-			yield return null;
 		}
 
 		private void Replay() {
@@ -128,13 +193,17 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 				+ (this.player.transform.localScale.y * 2)
 				* (this.Recordings.Count - ((int)(this.Recordings.Count / this.replayColors.Count) * this.replayColors.Count))
 			);
-			
+
 			this.NewRecording();
 
 			this.player.gameObject.SetActive(true);
 
 			TimeManager.Instance.ResetTimer();
 			ReferenceManager.Instance.GameState = ReferenceManager.EGameState.Playing;
+		}
+		
+		private void OnValidate() {
+			this.GetPitch(D_index, D_dir);
 		}
 	}
 	
