@@ -663,6 +663,33 @@ MonoBehaviour:
   - {r: 1, g: 0, b: 0.021577835, a: 1}
   - {r: 1, g: 0, b: 0.98475456, a: 1}
   - {r: 0.39488173, g: 0, b: 1, a: 1}
+  rewindTime:
+    Min: 0.01
+    Max: 0.001
+  rewindTimeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   Recordings: []
   Replayers: []
   State: 0
@@ -678,6 +705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3b09be9309c85146b1187a1ffea6dac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameState: 0
   PlayerController: {fileID: 349410380}
   ReplayerHolder: {fileID: 1533776634}
   PlayerRecordingPrefab: {fileID: 2840849234979988020, guid: 057c7e7c2daa06e49b485f8f27917a0a, type: 3}
@@ -710,9 +738,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7ab49d153f115644bab3879dd717c4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxTime: 1
+  MaxTime: 30
+  TimeStart: 0
   TimeLeft: 0
-  LevelStartTime: 0
+  D_current: 25
+  D_elapsed: 5
+  D_percentage: 0
+  D_time: 25
 --- !u!4 &1089906888 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1715306380986389943, guid: 7afdce441e6e7ed4fac3d7ce6e7cb807, type: 3}

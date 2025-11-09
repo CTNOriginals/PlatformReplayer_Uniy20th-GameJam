@@ -6,6 +6,15 @@ using UnityEngine;
 
 namespace CTNOriginals.PlatformReplayer.Managers {
 	public class ReferenceManager : Singleton<ReferenceManager> {
+		public enum EGameState {
+			Initializing,
+			Playing,
+			Rewinding,
+			Finished,
+		}
+
+		public EGameState GameState = EGameState.Initializing;
+
 		[FoldoutGroup("Player")]
 		public PlayerController PlayerController;
 		[FoldoutGroup("Player")]

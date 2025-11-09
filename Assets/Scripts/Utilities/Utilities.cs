@@ -54,9 +54,17 @@ namespace CTNOriginals.PlatformReplayer.Utilities {
 		/// <summary>The time it takes (in seconds) to travel on the curve's X axis</summary>
 		[HorizontalGroup(Width = 0.2f), HideLabel, PropertyTooltip("TimeFactor")]
 		public float TimeFactor;
-		
+
 		public float GetValue(float time) {
 			return this.Curve.Evaluate(time / this.TimeFactor);
 		}
+	}
+	
+	[System.Serializable]
+	public struct MinMax<T> {
+		[HorizontalGroup(LabelWidth = 25)]
+		public T Min;
+		[HorizontalGroup(LabelWidth = 30)]
+		public T Max;
 	}
 }

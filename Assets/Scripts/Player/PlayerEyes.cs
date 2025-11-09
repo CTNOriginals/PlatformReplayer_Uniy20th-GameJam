@@ -1,4 +1,5 @@
 using CTNOriginals.PlatformReplayer.Extensions;
+using CTNOriginals.PlatformReplayer.Managers;
 using UnityEngine;
 
 namespace CTNOriginals.PlatformReplayer.Player {
@@ -6,10 +7,10 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		public GameObject EyeLeft;
 		public GameObject EyeRight;
 
-
 		private bool _isPlayer;
 		private Replayer _replayer;
 		private PlayerController _controller;
+		private ReferenceManager.EGameState gameState => ReferenceManager.Instance.GameState;
 
 		private void Awake() {
 			if (this.TryGetComponent<Replayer>(out _replayer)) {
@@ -21,7 +22,7 @@ namespace CTNOriginals.PlatformReplayer.Player {
 			}
 		}
 
-		private void FixedUpdate() {
+		public void ValidateEyeDirection() {
 			float step = this.GetStep().x;
 
 			if (Mathf.Abs(step) < this.transform.localScale.x * 0.025f) {
@@ -44,14 +45,20 @@ namespace CTNOriginals.PlatformReplayer.Player {
 				return this._controller.Step;
 			} else {
 				if (
-					this._replayer.State != Replayer.EState.Replaying
+					(gameState != ReferenceManager.EGameState.Playing && gameState != ReferenceManager.EGameState.Rewinding)
 					|| this._replayer.Index == 0
 					|| this._replayer.Index >= this._replayer.Recording.Positions.Count
 				) {
 					return Vector2.zero;
 				}
-				
-				return this._replayer.Recording.Positions[this._replayer.Index] - this._replayer.Recording.Positions[this._replayer.Index - 1];
+
+				switch (ReferenceManager.Instance.GameState) {
+					default:
+					case ReferenceManager.EGameState.Playing:
+						return this._replayer.Recording.Positions[this._replayer.Index] - this._replayer.Recording.Positions[this._replayer.Index - 1];
+					case ReferenceManager.EGameState.Rewinding:
+						return this._replayer.Recording.Positions[this._replayer.Index - 1] - this._replayer.Recording.Positions[this._replayer.Index];
+				}
 			}
 		}
 	}

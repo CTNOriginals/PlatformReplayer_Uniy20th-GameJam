@@ -1,5 +1,6 @@
 using CTNOriginals.PlatformReplayer.Attributes.Composite;
 using CTNOriginals.PlatformReplayer.Extensions;
+using CTNOriginals.PlatformReplayer.Managers;
 using CTNOriginals.PlatformReplayer.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -40,14 +41,23 @@ namespace CTNOriginals.PlatformReplayer.Player {
 		public Vector2 Step;
 
 		PlayerInput playerInput;
-		Rigidbody2D rb;
+		PlayerEyes playerEyes;
+		ReferenceManager.EGameState gameState => ReferenceManager.Instance.GameState;
 
 		private void Awake() {
 			this.playerInput = this.GetComponent<PlayerInput>();
-			this.rb = this.GetComponent<Rigidbody2D>();
+		}
+
+
+		private void Start() {
+			this.playerEyes = this.GetComponent<PlayerEyes>();
 		}
 
 		private void FixedUpdate() {
+			if (gameState != ReferenceManager.EGameState.Playing) {
+				return;
+			}
+
 			this._currentSpeed = this.GetMovementSpeed();
 			this._velocity = this.GetPlayerVelocity(this._velocity, this._currentSpeed);
 
@@ -58,6 +68,7 @@ namespace CTNOriginals.PlatformReplayer.Player {
 				Step.x = 0;
 			}
 			
+			this.playerEyes.ValidateEyeDirection();
 			this.transform.position += (Vector3)Step;
 		}
 		
