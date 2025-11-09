@@ -117,16 +117,9 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		}
 
 		private float GetPitch(int step, int dir) {
-			// if (!Application.isPlaying) {
-			// 	dir = D_dir;
-			// }
-
-
 			D_steps = this.audioReverseTimeStep * step;
 			D_prog = (this.audioReverseCurve.TimeFactor / 100) * D_steps * 100;
 			D_pitch = (this.audioReverseCurve.GetValue(D_prog) * dir);
-
-			// D_pitch = (D_pitch > 0) ? D_pitch : D_pitch * Time.fixedDeltaTime / rewindTime.Min;
 
 			return D_pitch;
 		}
@@ -142,8 +135,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 				this.audioSource.pitch = this.GetPitch(i, dir * -1);
 				yield return timeStepWait;
 			}
-
-			// this.audioSource.pitch = ((D_pitch > 0) ? 1 : Time.fixedDeltaTime / rewindTime.Min) * dir;
+			
 			this.audioSource.pitch = dir;
 		}
 
