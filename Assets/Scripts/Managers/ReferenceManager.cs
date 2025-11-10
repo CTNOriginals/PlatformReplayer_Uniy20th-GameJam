@@ -13,6 +13,9 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			Finished,
 		}
 
+		public bool IsWebBuild;
+		[SerializeField] private bool testWebBuild;
+
 		public EGameState GameState = EGameState.Initializing;
 
 		[FoldoutGroup("Player")]
@@ -29,6 +32,14 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		public AudioSource AudioSource;
 		public AudioClip MusicClip;
 		public AudioClip MusicClipReverse;
+
+		protected override void Awake() {
+			base.Awake();
+			if (!Application.isEditor) {
+				this.testWebBuild = false;
+			}
+			this.IsWebBuild = this.testWebBuild || Application.platform == RuntimePlatform.WebGLPlayer;
+		}
 
 		private void Start() {
 			this.PlayerStartPosition = this.PlayerController.transform.position;

@@ -41,7 +41,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			In other words, this value is how many seconds each step takes.
 		")]
 		private float audioReverseTimeStep;
-		[ConfigGroup, Range(0, 3), SerializeField]
+		[ConfigGroup, Range(0, -3), SerializeField]
 		private float audioMaxReversePitch;
 
 		[Range(0, 100)] public int D_index;
@@ -67,6 +67,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		private void Start() {
 			this.NewRecording();
 			ReferenceManager.Instance.GameState = ReferenceManager.EGameState.Playing;
+			this.audioMaxReversePitch = (ReferenceManager.Instance.IsWebBuild) ? Mathf.Abs(this.audioMaxReversePitch) : this.audioMaxReversePitch;
 		}
 
 		private void FixedUpdate() {
@@ -116,12 +117,18 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			StartCoroutine(this.Rewind());
 		}
 
-		private float GetPitch(int step) {
+		private float GetPitch(int step, int dir) {
 			D_steps = this.audioReverseTimeStep * step;
 			D_prog = (this.audioReverseCurve.TimeFactor / 100) * D_steps * 100;
-			D_pitch = (this.audioReverseCurve.GetValue(D_prog));
+			D_pitch = (this.audioReverseCurve.GetValue(D_prog) * dir);
 
-			return Mathf.Clamp(D_pitch, 0.1f, 1);
+			// D_pitch = (D_pitch > 0) ? D_pitch : D_pitch * Time.fixedDeltaTime / rewindTime.Min;
+
+			if (ReferenceManager.Instance.IsWebBuild) {
+				D_pitch = Mathf.Clamp01(D_pitch);
+			}
+
+			return D_pitch;
 		}
 
 		private IEnumerator ReverseAudio() {
@@ -129,14 +136,15 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 			D_timeSteps = timeSteps;
 
 			WaitForSeconds timeStepWait = new WaitForSeconds(this.audioReverseTimeStep);
-			// int dir = (this.audioSource.pitch > 0) ? -1 : 1;
+			int dir = (this.audioSource.pitch > 0) ? -1 : 1;
 
 			for (int i = 0; i < timeSteps; i++) {
-				this.audioSource.pitch = this.GetPitch(i);
+				this.audioSource.pitch = this.GetPitch(i, dir * -1);
 				yield return timeStepWait;
 			}
-			
-			this.audioSource.pitch = 1;
+
+			// this.audioSource.pitch = ((D_pitch > 0) ? 1 : Time.fixedDeltaTime / rewindTime.Min) * dir;
+			this.audioSource.pitch = (ReferenceManager.Instance.IsWebBuild) ? 1 : dir;
 		}
 
 		private IEnumerator Rewind() {
@@ -158,7 +166,8 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 
 				TimeManager.Instance.SetTimerPercentage(progress);
 
-				this.audioSource.pitch = Mathf.Lerp(D_pitch, audioMaxReversePitch, progressCurve);
+				float pitch = Mathf.Lerp(D_pitch, audioMaxReversePitch, progressCurve);
+				this.audioSource.pitch = (ReferenceManager.Instance.IsWebBuild) ? Mathf.Clamp01(pitch) : pitch;
 
 				yield return new WaitForSeconds(waitTime);
 			}
@@ -195,7 +204,7 @@ namespace CTNOriginals.PlatformReplayer.Managers {
 		}
 		
 		private void OnValidate() {
-			this.GetPitch(D_index);
+			this.GetPitch(D_index, D_dir);
 		}
 	}
 	

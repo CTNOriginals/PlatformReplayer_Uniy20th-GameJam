@@ -802,7 +802,7 @@ MonoBehaviour:
   - {r: 1, g: 0, b: 0.98475456, a: 1}
   - {r: 0.39488173, g: 0, b: 1, a: 1}
   rewindTime:
-    Min: 0.005
+    Min: 0.01
     Max: 0.001
   rewindTimeCurve:
     serializedVersion: 2
@@ -852,25 +852,25 @@ MonoBehaviour:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 1
-        inSlope: 5.3238063
+        value: -1
+        inSlope: -2.3715048
         outSlope: 0
         tangentMode: 1
         weightedMode: 0
-        inWeight: 0.07692313
+        inWeight: 0.13008964
         outWeight: 0.33333334
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     TimeFactor: 1
   audioReverseTimeStep: 0.01
-  audioMaxReversePitch: 1.5
+  audioMaxReversePitch: -1.5
   D_index: 70
   D_dir: -1
   D_timeSteps: 0
   D_steps: 0.7
   D_prog: 0.7
-  D_pitch: 0.09645728
+  D_pitch: 0.23816772
   Recordings: []
   Replayers: []
   State: 0
@@ -886,6 +886,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3b09be9309c85146b1187a1ffea6dac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsWebBuild: 0
+  testWebBuild: 0
   GameState: 0
   PlayerController: {fileID: 349410380}
   ReplayerHolder: {fileID: 1533776634}
